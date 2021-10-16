@@ -32,11 +32,20 @@ module.exports = class BlockChain {
 
   addTransaction(transaction) {
     if (!transaction.toAddress || !transaction.fromAddress) {
-      throw new Error('Transaction msut include from and to address');
+      throw new Error('Transaction must include from and to address');
     }
 
     if (!transaction.isValid()) {
       throw new Error('Cannot add invalid transaction to chain');
+    }
+
+    if (transaction.amount <= 0) {
+      throw new Error('Transaction amount should be higher than 0');
+    }
+
+    const walletFunds = this.getBalanceOfAddress(transaction.fromAddress);
+    if (walletFunds < transaction.amount) {
+      throw new Error(`Insufficient funds in the wallet. (Wallet: ${walletFunds} | Transaction: ${transaction.amount})`);
     }
 
     this.pendingTransactions.push(transaction);
